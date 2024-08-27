@@ -56,9 +56,8 @@ function startGame() {
 
 function startGameBot() {
   const p1Name = prompt('Player 1 name', 'PlayerOne');
-  const p2Name = prompt('Player 1 name', 'PlayerTwo');
   player1 = new Player(true, p1Name);
-  player2 = new Player(false, p2Name);
+  player2 = new Player(false);
   console.log(player1.ships, player2.ships);
   activePlayer = player1;
   renderShipsToPlace(player1, ships1, colorP1);
