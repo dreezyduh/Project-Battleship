@@ -1,4 +1,4 @@
-import { displayCells, startGame, updateScreen } from './DOMinterface';
+import { startGameBot } from './DOMinterface';
 import './style.css';
 
 

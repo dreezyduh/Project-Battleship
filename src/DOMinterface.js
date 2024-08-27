@@ -1,6 +1,6 @@
 import { posToCoords } from './gameboard';
 import Player from './player';
-export { displayCells, startGame, updateScreen };
+export { displayCells, startGame, updateScreen, startGameBot };
 
 const announcer = document.querySelector('.announcer');
 const playerOneBoard = document.querySelector('.playerOne');
