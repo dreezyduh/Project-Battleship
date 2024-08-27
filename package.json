@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "webpack",
     "ftime": "git subtree push --prefix dist origin gh-pages",
     "ghpages": "git push origin :gh-pages && git subtree push --prefix dist origin gh-pages"
@@ -12,8 +12,17 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.3",
+    "@eslint/js": "^9.9.1",
+    "@html-eslint/eslint-plugin": "^0.26.0",
+    "@html-eslint/parser": "^0.26.0",
+    "babel-jest": "^29.7.0",
     "css-loader": "^7.1.1",
+    "eslint": "^9.9.0",
+    "globals": "^15.9.0",
     "html-webpack-plugin": "^5.6.0",
+    "jest": "^29.7.0",
     "prettier": "3.3.0",
     "style-loader": "^4.0.0",
     "webpack": "^5.91.0",
