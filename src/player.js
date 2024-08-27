@@ -20,4 +20,11 @@ export default class Player {
       destroyer: new Ship(2),
     };
   }
+
+  didAllShipsSink() {
+    if (this.ships.carrier.sunk && this.ships.battleship.sunk && this.ships.cruiser.sunk && this.ships.submarine.sunk && this.ships.destroyer.sunk) {
+      return true
+    }
+    return false
+  }
 }

@@ -3,5 +3,4 @@ import './style.css';
 
 
 startGame();
-updateScreen();
 

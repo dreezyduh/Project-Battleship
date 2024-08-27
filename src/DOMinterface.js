@@ -1,7 +1,8 @@
+import { posToCoords } from './gameboard';
 import Player from './player';
 export { displayCells, startGame, updateScreen };
 
-const gameboardContainer = document.querySelector('.gameboard');
+const announcer = document.querySelector('.announcer');
 const playerOneBoard = document.querySelector('.playerOne');
 const playerTwoBoard = document.querySelector('.playerTwo');
 const titleP1 = document.querySelector('.titleP1');
@@ -10,19 +11,15 @@ const ships1 = document.querySelector('.ships1');
 const ships2 = document.querySelector('.ships2');
 const buttonContainer = document.querySelector('.buttonContainer');
 
-function displayShipsToChooseFrom() {
-  renderShipsToPlace(player1, ships1, colorP1);
-  // renderShipsToPlace(player2, ships2, colorP2);
-}
-
 let player1 = null;
 let player2 = null;
 let colorP1 = 'cyan';
 let colorP2 = 'pink';
 let orientationList = ['down', 'up', 'left', 'right'];
 let orientation = orientationList[0];
-
+let winner = null;
 let activePlayer = player1;
+
 function getActivePlayer() {
   return activePlayer;
 }
@@ -35,7 +32,7 @@ function switchActivePlayer() {
   activePlayer = player1;
 }
 
-function attackPlayer(posX, posY) {
+function getEnemyPlayer() {
   let enemyPlayer = null;
   let currentPlayer = getActivePlayer();
   if (currentPlayer === player1) {
@@ -43,29 +40,76 @@ function attackPlayer(posX, posY) {
   } else {
     enemyPlayer = player1;
   }
-  enemyPlayer.gameboard.receiveAttack(posX, posY);
+  return enemyPlayer
 }
 
 function startGame() {
   const p1Name = prompt('Player 1 name', 'PlayerOne');
+  const p2Name = prompt('Player 1 name', 'PlayerTwo');
   player1 = new Player(true, p1Name);
-  player2 = new Player(false);
+  player2 = new Player(true, p2Name);
   console.log(player1.ships, player2.ships);
   activePlayer = player1;
-  displayShipsToChooseFrom();
-  // player2.gameboard.placeShip(8, 3, player2.ships['carrier'], 'right')
+  renderShipsToPlace(player1, ships1, colorP1);
+  updateScreen();
+}
+
+function startGameBot() {
+  const p1Name = prompt('Player 1 name', 'PlayerOne');
+  const p2Name = prompt('Player 1 name', 'PlayerTwo');
+  player1 = new Player(true, p1Name);
+  player2 = new Player(false, p2Name);
+  console.log(player1.ships, player2.ships);
+  activePlayer = player1;
+  renderShipsToPlace(player1, ships1, colorP1);
+  updateScreen();
 }
 
 function updateScreen() {
   displayCells(player1, player2);
-  changeOrientation(playerOneBoard);
+  changeOrientation();
   console.log(activePlayer.placeStage);
   console.log(player1.gameboard.missedAttacks);
+  console.log(player2.gameboard.missedAttacks);
   console.log(player1.gameboard.board, player2.gameboard.board);
 }
 
-function playRound() {
-  console.log('.');
+function checkForWinner() {
+  const enemyPlayer = getEnemyPlayer()
+  if (enemyPlayer.didAllShipsSink()) {
+    const resetBtn = document.createElement('button')
+    resetBtn.textContent = 'Restart with 2 players'
+    resetBtn.addEventListener('click', resetGame)
+    const resetBtnBot = document.createElement('button')
+    resetBtnBot.textContent = 'Restart with bot'
+    resetBtnBot.addEventListener('click', resetGameBot)
+    console.log(activePlayer.name + ' has won the game')
+    announcer.textContent = activePlayer.name + ' has won the game'
+    announcer.appendChild(resetBtn)
+    announcer.appendChild(resetBtnBot)
+    winner = activePlayer;
+    updateScreen()
+    return true;
+  }
+  return false;
+}
+
+function playRound(posX, posY, player, enemyPlayer) {
+  if (!enemyPlayer.gameboard.receiveAttack(posX, posY)) {
+    switchActivePlayer()
+    if (!activePlayer.real) {
+      if (attackRandomPos(player) === 0) {
+        if (checkForWinner()) {
+          return
+        }
+      }
+    }
+  } else {
+    if (checkForWinner()) {
+      return
+    }
+  }
+  updateScreen()
 }
 
 function displayCells(player1, player2) {
@@ -92,8 +136,9 @@ function renderShipsToPlace(player, parent, color) {
       shipcell.appendChild(cell);
       cell.setAttribute('draggable', true);
       cell.addEventListener('dragstart', (event) => {
-        // console.log(event.target);
-        dragged = event.target;
+        if (cell === event.target) {
+          dragged = event.target;
+        }
       });
     }
 
@@ -107,47 +152,73 @@ function renderShipsInCells(player, color, parent) {
   let i = 0;
   for (let index of player.gameboard.board) {
     const cell = document.createElement('div');
-    if (index.hasShip) {
-      cell.style.backgroundColor = `${color}`;
+    // 
+    if (player === activePlayer) {
+      if (index.hasShip) {
+        cell.style.backgroundColor = `${color}`;
+      }
     }
+    //  Comment ^ and uncomment v if you want to see enemy ships
+    // if (index.hasShip) {
+    //   cell.style.backgroundColor = `${color}`;
+    // }
+    // 
     if (index.isHit == true) {
       cell.textContent = 'X';
+      if (index.hasShip) {
+        cell.style.backgroundColor = 'gray';
+      }
     }
     cell.setAttribute('class', `cell ${i}`);
     parent.appendChild(cell);
-    cell.addEventListener('dragover', (event) => {
-      event.preventDefault();
-    });
-    cell.addEventListener('drop', (event) => {
-      event.preventDefault();
-      // console.log(event.target);
-      const coords = event.target.className.split(' ')[1];
-      dropShipIntoCell(dragged, activePlayer, coords);
-      const shipsDiv = dragged.parentElement.parentElement;
-      shipsDiv.removeChild(dragged.parentElement);
-      if (shipsDiv.childNodes.length === 0) {
-        player.placeStage = false;
-        buttonContainer.parentElement.removeChild(buttonContainer);
-        updateScreen();
-      }
-    });
     i++;
+    if (player.placeStage) {
+      cell.addEventListener('dragover', (event) => {
+        event.preventDefault();
+      });
+      cell.addEventListener('drop', (event) => {
+        event.preventDefault();
+        const coords = event.target.className.split(' ')[1];
+        dropShipIntoCell(dragged, player, coords)
+        updateScreen();
+      });
+    }
+    if (player !== activePlayer && !player.placeStage && !activePlayer.placeStage && winner === null) {
+      if (!index.isHit) {
+        cell.addEventListener('click', (event) => {
+          const cellCoords = cell.className.split(' ')[1]
+          const [posX, posY] = coordsToPos(cellCoords);
+          playRound(posX, posY, activePlayer, player)
+        })
+      }
+    }
   }
 }
 
-function dropShipIntoCell(ship, activePlayer, coords) {
-  if (player1.placeStage || player2.placeStage) {
-    let theShip = ship.className.split(' ')[1];
-    let [posX, posY] = coordsToPos(coords);
-    // console.log(posX, posY);
-    // console.log(theShip);
-    activePlayer.gameboard.placeShip(
-      posX,
-      posY,
-      activePlayer.ships[theShip],
-      orientation
-    );
-    updateScreen();
+function dropShipIntoCell(ship, player, coords) {
+  let theShip = ship.className.split(' ')[1];
+  let [posX, posY] = coordsToPos(coords);
+  player.gameboard.placeShip(
+    posX,
+    posY,
+    player.ships[theShip],
+    orientation
+  );
+  const shipsDiv = dragged.parentElement.parentElement;
+  shipsDiv.removeChild(dragged.parentElement);
+  if (shipsDiv.childNodes.length === 0) {
+    player.placeStage = false;
+    buttonContainer.textContent = ''
+    switchActivePlayer()
+    console.log('switcing player ' + activePlayer.name)
+    if (activePlayer.placeStage) {
+      renderShipsToPlace(player2, ships2, colorP2);
+      ships2.setAttribute('class', 'ships2');
+    } else if (!activePlayer.placeStage && !activePlayer.real) {
+      createRandomShipsForComputer()
+      switchActivePlayer()
+      console.log('switcing player ' + activePlayer.name)
+    }
   }
 }
 
@@ -157,7 +228,7 @@ function coordsToPos(coords) {
   return [posX, posY];
 }
 
-function changeOrientation(parent) {
+function changeOrientation() {
   buttonContainer.textContent = '';
   const buttonLeft = document.createElement('button');
   const buttonRight = document.createElement('button');
@@ -168,7 +239,6 @@ function changeOrientation(parent) {
   buttonContainer.appendChild(buttonLeft);
   buttonContainer.appendChild(orientationText);
   buttonContainer.appendChild(buttonRight);
-  parent.appendChild.buttonContainer;
   buttonLeft.addEventListener('click', function () {
     let index = orientationList.indexOf(orientation, 0);
     if (index - 1 < 0) {
@@ -203,6 +273,29 @@ function createRandomShipsForComputer() {
   }
 }
 
+function attackRandomPos(enemyPlayer) {
+  const availableCoords = [];
+  for (let coord in enemyPlayer.gameboard.board) {
+    if (!enemyPlayer.gameboard.board[coord].isHit) {
+      availableCoords.push(coord)
+    }
+  }
+  console.log(availableCoords)
+  console.log(availableCoords.length - 1)
+  const random = Math.floor(Math.random() * (availableCoords.length - 1))
+  console.log(random)
+  const [posX, posY] = coordsToPos(availableCoords[random])
+  if (!enemyPlayer.gameboard.board[availableCoords[random]].isHit) {
+    if (enemyPlayer.gameboard.receiveAttack(posX, posY)) {
+      attackRandomPos(enemyPlayer);
+      return 1;
+    } else {
+      switchActivePlayer();
+      return 0;
+    }
+  }
+}
+
 function checkIfRandomPosAvailable(ship) {
   try {
     const posX = Math.floor(Math.random() * 8 + 1);
@@ -220,4 +313,20 @@ function checkIfRandomPosAvailable(ship) {
     console.error(e);
     return false;
   }
+}
+
+function resetGame() {
+  player1 = null;
+  player2 = null;
+  winner = null;
+  announcer.textContent = ''
+  startGame()
+}
+
+function resetGameBot() {
+  player1 = null;
+  player2 = null;
+  winner = null;
+  announcer.textContent = ''
+  startGameBot()
 }

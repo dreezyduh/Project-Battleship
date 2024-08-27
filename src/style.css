@@ -7,6 +7,14 @@ body {
     gap: 100px;
 }
 
+.announcer {
+  font-size: 30px;
+  font-weight: 800;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
 .titleP1, .titleP2 {
     font-weight: 600;
     font-size: 20px;
@@ -41,3 +49,8 @@ body {
   font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   font-weight: 800;
 }
+
+.hidden {
+  display: none;
+}
+

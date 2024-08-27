@@ -5,7 +5,6 @@ export default class Gameboard {
       this.board.push({ hasShip: false, isHit: false });
     }
     this.missedAttacks = [];
-    this.playerShips = null;
   }
 
   placeShip(posX, posY, ship, orientation) {
@@ -30,6 +29,7 @@ export default class Gameboard {
     }
     this.board[coords].isHit = true;
     this.missedAttacks.push(coords);
+    console.log('pusing missed')
     return false;
   }
 

@@ -1,8 +1,11 @@
 import globals from "globals";
 import pluginJs from "@eslint/js";
-import html from "@html-eslint/eslint-plugin";
+import pluginReact, { rules } from "eslint-plugin-react";
+
 
 export default [
+  {files: ["**/*.{js,mjs,cjs,jsx}"]},
   {languageOptions: { globals: globals.browser }},
   pluginJs.configs.recommended,
+  pluginReact.configs.flat.recommended,
 ];
