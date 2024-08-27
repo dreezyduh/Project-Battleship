@@ -136,7 +136,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
   \**********************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _DOMinterface__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DOMinterface */ \"./src/DOMinterface.js\");\n/* harmony import */ var _style_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./style.css */ \"./src/style.css\");\n\r\n\r\n\r\n\r\n(0,_DOMinterface__WEBPACK_IMPORTED_MODULE_0__.startGame)();\r\n\r\n\n\n//# sourceURL=webpack://todolist/./src/index.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _DOMinterface__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DOMinterface */ \"./src/DOMinterface.js\");\n/* harmony import */ var _style_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./style.css */ \"./src/style.css\");\n\r\n\r\n\r\n\r\nstartGameBot();\r\n\r\n\n\n//# sourceURL=webpack://todolist/./src/index.js?");
 
 /***/ }),
 
