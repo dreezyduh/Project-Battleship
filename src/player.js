@@ -22,9 +22,15 @@ export default class Player {
   }
 
   didAllShipsSink() {
-    if (this.ships.carrier.sunk && this.ships.battleship.sunk && this.ships.cruiser.sunk && this.ships.submarine.sunk && this.ships.destroyer.sunk) {
-      return true
+    if (
+      this.ships.carrier.sunk &&
+      this.ships.battleship.sunk &&
+      this.ships.cruiser.sunk &&
+      this.ships.submarine.sunk &&
+      this.ships.destroyer.sunk
+    ) {
+      return true;
     }
-    return false
+    return false;
   }
 }

@@ -29,7 +29,7 @@ export default class Gameboard {
     }
     this.board[coords].isHit = true;
     this.missedAttacks.push(coords);
-    console.log('pusing missed')
+    console.log('pusing missed');
     return false;
   }
 

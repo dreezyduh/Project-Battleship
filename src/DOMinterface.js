@@ -40,7 +40,7 @@ function getEnemyPlayer() {
   } else {
     enemyPlayer = player1;
   }
-  return enemyPlayer
+  return enemyPlayer;
 }
 
 function startGame() {
@@ -74,20 +74,20 @@ function updateScreen() {
 }
 
 function checkForWinner() {
-  const enemyPlayer = getEnemyPlayer()
+  const enemyPlayer = getEnemyPlayer();
   if (enemyPlayer.didAllShipsSink()) {
-    const resetBtn = document.createElement('button')
-    resetBtn.textContent = 'Restart with 2 players'
-    resetBtn.addEventListener('click', resetGame)
-    const resetBtnBot = document.createElement('button')
-    resetBtnBot.textContent = 'Restart with bot'
-    resetBtnBot.addEventListener('click', resetGameBot)
-    console.log(activePlayer.name + ' has won the game')
-    announcer.textContent = activePlayer.name + ' has won the game'
-    announcer.appendChild(resetBtn)
-    announcer.appendChild(resetBtnBot)
+    const resetBtn = document.createElement('button');
+    resetBtn.textContent = 'Restart with 2 players';
+    resetBtn.addEventListener('click', resetGame);
+    const resetBtnBot = document.createElement('button');
+    resetBtnBot.textContent = 'Restart with bot';
+    resetBtnBot.addEventListener('click', resetGameBot);
+    console.log(activePlayer.name + ' has won the game');
+    announcer.textContent = activePlayer.name + ' has won the game';
+    announcer.appendChild(resetBtn);
+    announcer.appendChild(resetBtnBot);
     winner = activePlayer;
-    updateScreen()
+    updateScreen();
     return true;
   }
   return false;
@@ -95,20 +95,20 @@ function checkForWinner() {
 
 function playRound(posX, posY, player, enemyPlayer) {
   if (!enemyPlayer.gameboard.receiveAttack(posX, posY)) {
-    switchActivePlayer()
+    switchActivePlayer();
     if (!activePlayer.real) {
       if (attackRandomPos(player) === 0) {
         if (checkForWinner()) {
-          return
+          return;
         }
       }
     }
   } else {
     if (checkForWinner()) {
-      return
+      return;
     }
   }
-  updateScreen()
+  updateScreen();
 }
 
 function displayCells(player1, player2) {
@@ -151,7 +151,7 @@ function renderShipsInCells(player, color, parent) {
   let i = 0;
   for (let index of player.gameboard.board) {
     const cell = document.createElement('div');
-    // 
+    //
     if (player === activePlayer) {
       if (index.hasShip) {
         cell.style.backgroundColor = `${color}`;
@@ -161,7 +161,7 @@ function renderShipsInCells(player, color, parent) {
     // if (index.hasShip) {
     //   cell.style.backgroundColor = `${color}`;
     // }
-    // 
+    //
     if (index.isHit == true) {
       cell.textContent = 'X';
       if (index.hasShip) {
@@ -178,17 +178,22 @@ function renderShipsInCells(player, color, parent) {
       cell.addEventListener('drop', (event) => {
         event.preventDefault();
         const coords = event.target.className.split(' ')[1];
-        dropShipIntoCell(dragged, player, coords)
+        dropShipIntoCell(dragged, player, coords);
         updateScreen();
       });
     }
-    if (player !== activePlayer && !player.placeStage && !activePlayer.placeStage && winner === null) {
+    if (
+      player !== activePlayer &&
+      !player.placeStage &&
+      !activePlayer.placeStage &&
+      winner === null
+    ) {
       if (!index.isHit) {
         cell.addEventListener('click', (event) => {
-          const cellCoords = cell.className.split(' ')[1]
+          const cellCoords = cell.className.split(' ')[1];
           const [posX, posY] = coordsToPos(cellCoords);
-          playRound(posX, posY, activePlayer, player)
-        })
+          playRound(posX, posY, activePlayer, player);
+        });
       }
     }
   }
@@ -197,26 +202,21 @@ function renderShipsInCells(player, color, parent) {
 function dropShipIntoCell(ship, player, coords) {
   let theShip = ship.className.split(' ')[1];
   let [posX, posY] = coordsToPos(coords);
-  player.gameboard.placeShip(
-    posX,
-    posY,
-    player.ships[theShip],
-    orientation
-  );
+  player.gameboard.placeShip(posX, posY, player.ships[theShip], orientation);
   const shipsDiv = dragged.parentElement.parentElement;
   shipsDiv.removeChild(dragged.parentElement);
   if (shipsDiv.childNodes.length === 0) {
     player.placeStage = false;
-    buttonContainer.textContent = ''
-    switchActivePlayer()
-    console.log('switcing player ' + activePlayer.name)
+    buttonContainer.textContent = '';
+    switchActivePlayer();
+    console.log('switcing player ' + activePlayer.name);
     if (activePlayer.placeStage) {
       renderShipsToPlace(player2, ships2, colorP2);
       ships2.setAttribute('class', 'ships2');
     } else if (!activePlayer.placeStage && !activePlayer.real) {
-      createRandomShipsForComputer()
-      switchActivePlayer()
-      console.log('switcing player ' + activePlayer.name)
+      createRandomShipsForComputer();
+      switchActivePlayer();
+      console.log('switcing player ' + activePlayer.name);
     }
   }
 }
@@ -276,14 +276,14 @@ function attackRandomPos(enemyPlayer) {
   const availableCoords = [];
   for (let coord in enemyPlayer.gameboard.board) {
     if (!enemyPlayer.gameboard.board[coord].isHit) {
-      availableCoords.push(coord)
+      availableCoords.push(coord);
     }
   }
-  console.log(availableCoords)
-  console.log(availableCoords.length - 1)
-  const random = Math.floor(Math.random() * (availableCoords.length - 1))
-  console.log(random)
-  const [posX, posY] = coordsToPos(availableCoords[random])
+  console.log(availableCoords);
+  console.log(availableCoords.length - 1);
+  const random = Math.floor(Math.random() * (availableCoords.length - 1));
+  console.log(random);
+  const [posX, posY] = coordsToPos(availableCoords[random]);
   if (!enemyPlayer.gameboard.board[availableCoords[random]].isHit) {
     if (enemyPlayer.gameboard.receiveAttack(posX, posY)) {
       attackRandomPos(enemyPlayer);
@@ -318,14 +318,14 @@ function resetGame() {
   player1 = null;
   player2 = null;
   winner = null;
-  announcer.textContent = ''
-  startGame()
+  announcer.textContent = '';
+  startGame();
 }
 
 function resetGameBot() {
   player1 = null;
   player2 = null;
   winner = null;
-  announcer.textContent = ''
-  startGameBot()
+  announcer.textContent = '';
+  startGameBot();
 }
