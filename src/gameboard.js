@@ -17,27 +17,29 @@ export default class Gameboard {
   }
 
   receiveAttack(posX, posY) {
-    let coords = posToCoords(posX, posY);
-    if (this.board[coords]) {
-      if (this.board[coords].hasShip && this.board[coords].isHit === false) {
-        this.board[coords].isHit = true;
-        this.board[coords].hasShip.hit();
-        return true;
-      }
-    } else if (!this.board[coords]) {
-      return;
+    const coords = posToCoords(posX, posY);
+    if (!this.board[coords]) {
+      return false;
+    }
+    if (
+      this.board[coords] &&
+      this.board[coords].hasShip &&
+      this.board[coords].isHit === false
+    ) {
+      this.board[coords].isHit = true;
+      this.board[coords].hasShip.hit();
+      return true;
     }
     this.board[coords].isHit = true;
     this.missedAttacks.push(coords);
-    console.log('pusing missed');
+    console.log('pushing missed');
     return false;
   }
 
   checkIfCoordsEmpty(posX, posY) {
-    let coords = posToCoords(posX, posY);
-    if (this.board[coords]) {
-      if (this.board[coords].hasShip === false) return true;
-      return false;
+    const coords = posToCoords(posX, posY);
+    if (this.board[coords] && this.board[coords].hasShip === false) {
+      return true;
     }
     return false;
   }
