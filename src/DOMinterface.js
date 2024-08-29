@@ -1,5 +1,5 @@
 import { posToCoords } from './gameboard';
-import arrow from './images/arrow.svg'
+import arrow from './images/arrow.svg';
 import Player from './player';
 export { displayCells, startGame, updateScreen, startGameBot };
 
@@ -55,7 +55,7 @@ function startGame() {
   console.log(player1.ships, player2.ships);
   activePlayer = player1;
   renderShipsToPlace(player1, ships1, colorP1);
-  changeOrientation()
+  changeOrientation();
   updateScreen();
 }
 
@@ -67,7 +67,7 @@ function startGameBot() {
   console.log(player1.ships, player2.ships);
   activePlayer = player1;
   renderShipsToPlace(player1, ships1, colorP1);
-  changeOrientation()
+  changeOrientation();
   updateScreen();
 }
 
@@ -104,7 +104,7 @@ function checkForWinner() {
 }
 
 function playRound(posX, posY, player, enemyPlayer) {
-  console.log(!activePlayer.shipCellHit)
+  console.log(!activePlayer.shipCellHit);
   if (enemyPlayer.gameboard.receiveAttack(posX, posY)) {
     if (checkForWinner()) {
       return;
@@ -112,12 +112,14 @@ function playRound(posX, posY, player, enemyPlayer) {
   } else {
     switchActivePlayer();
   }
-  if (!activePlayer.real && activePlayer.shipCellHit && attackAroundLastShipHit(player) === -1) {
+  if (
+    !activePlayer.real &&
+    activePlayer.shipCellHit &&
+    attackAroundLastShipHit(player) === -1
+  ) {
     return;
-  } else if (!activePlayer.real && attackRandomPos(player) === 1) {
-    if (checkForWinner()) {
-      return;
-    }
+  } else if (!activePlayer.real && attackRandomPos(player) === -1) {
+    return;
   }
   updateScreen();
 }
@@ -211,7 +213,7 @@ function renderShipsInCells(player, color, parent) {
 }
 
 function dropShipIntoCell(ship, player, coords) {
-  errorPanel.textContent = ''
+  errorPanel.textContent = '';
   let theShip = ship.className.split(' ')[1];
   let [posX, posY] = coordsToPos(coords);
   try {
@@ -249,7 +251,7 @@ function changeOrientation() {
   const buttonImg = document.createElement('img');
   const orientationText = document.createElement('div');
   orientationText.textContent = `Place direction: `;
-  buttonRight.appendChild(buttonImg)
+  buttonRight.appendChild(buttonImg);
   buttonContainer.appendChild(orientationText);
   buttonContainer.appendChild(buttonRight);
   buttonImg.src = arrow;
@@ -259,7 +261,7 @@ function changeOrientation() {
   buttonRight.addEventListener('click', function () {
     let index = orientationList.indexOf(orientation, 0);
     index++;
-    buttonImg.style.rotate = `${90 * index}deg`
+    buttonImg.style.rotate = `${90 * index}deg`;
     if (index > orientationList.length - 1) {
       orientation = orientationList[0];
     } else {
@@ -283,40 +285,43 @@ function createRandomShipsForComputer() {
 }
 
 function setPlayerNameOrDefault(playerName, defaultName) {
-  const regex = /\w+/
+  const regex = /\w+/;
   if (!playerName) {
     playerName = defaultName;
-  }
-  else if (playerName) {
+  } else if (playerName) {
     const match = playerName.match(regex);
     if (!match) {
       playerName = defaultName;
     }
   }
-  return playerName
+  return playerName;
 }
 
 function attackAroundLastShipHit(enemyPlayer) {
-  const shipCellHit = activePlayer.shipCellHit
-  let coordsToHit = [[-1, 0], [0, -1], [1, 0], [0, 1]]
+  const shipCellHit = activePlayer.shipCellHit;
+  let coordsToHit = [
+    [-1, 0],
+    [0, -1],
+    [1, 0],
+    [0, 1],
+  ];
   const queue = [];
   for (let i = 0; i < coordsToHit.length; i++) {
-    const newPos = [shipCellHit[0] + coordsToHit[i][0], shipCellHit[1] + coordsToHit[i][1]]
-    if (newPos[0] < 1 ||
-        newPos[1] < 1 ||
-        newPos[0] > 10||
-        newPos[1] > 10
-    ) {
+    const newPos = [
+      shipCellHit[0] + coordsToHit[i][0],
+      shipCellHit[1] + coordsToHit[i][1],
+    ];
+    if (newPos[0] < 1 || newPos[1] < 1 || newPos[0] > 10 || newPos[1] > 10) {
       continue;
     }
     const coords = posToCoords(newPos[0], newPos[1]);
-    queue.push([newPos[0], newPos[1], coords])
+    queue.push([newPos[0], newPos[1], coords]);
   }
   const emptySpaces = [];
-  while(queue.length > 0) {
+  while (queue.length > 0) {
     const u = queue.shift();
     if (!enemyPlayer.gameboard.board[u[2]].isHit) {
-      emptySpaces.push([u[0], u[1], u[2]])
+      emptySpaces.push([u[0], u[1], u[2]]);
     }
   }
   if (emptySpaces.length < 1) {
@@ -324,8 +329,11 @@ function attackAroundLastShipHit(enemyPlayer) {
     return attackRandomPos(enemyPlayer);
   }
   if (emptySpaces.length > 0) {
-    const u = emptySpaces[0]
-    if (!enemyPlayer.gameboard.board[u[2]].isHit && enemyPlayer.gameboard.receiveAttack(u[0], u[1])) {
+    const u = emptySpaces[0];
+    if (
+      !enemyPlayer.gameboard.board[u[2]].isHit &&
+      enemyPlayer.gameboard.receiveAttack(u[0], u[1])
+    ) {
       activePlayer.shipCellHit = [u[0], u[1]];
       if (checkForWinner()) {
         return -1;
@@ -333,7 +341,7 @@ function attackAroundLastShipHit(enemyPlayer) {
       attackAroundLastShipHit(enemyPlayer);
       return 1;
     } else {
-      switchActivePlayer()
+      switchActivePlayer();
       return 0;
     }
   }
@@ -351,9 +359,13 @@ function attackRandomPos(enemyPlayer) {
   const random = Math.floor(Math.random() * (availableCoords.length - 1));
   // console.log(random);
   const [posX, posY] = coordsToPos(availableCoords[random]);
-  if (!enemyPlayer.gameboard.board[availableCoords[random]].isHit &&
-      enemyPlayer.gameboard.receiveAttack(posX, posY)
+  if (
+    !enemyPlayer.gameboard.board[availableCoords[random]].isHit &&
+    enemyPlayer.gameboard.receiveAttack(posX, posY)
   ) {
+    if (checkForWinner()) {
+      return -1;
+    }
     activePlayer.shipCellHit = [posX, posY];
     attackAroundLastShipHit(enemyPlayer);
     return 1;
