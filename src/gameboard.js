@@ -17,29 +17,27 @@ export default class Gameboard {
   }
 
   receiveAttack(posX, posY) {
-    let coords = posToCoords(posX, posY);
-    if (this.board[coords]) {
-      if (this.board[coords].hasShip && this.board[coords].isHit === false) {
-        this.board[coords].isHit = true;
-        this.board[coords].hasShip.hit();
-        return true;
-      }
-    } else if (!this.board[coords]) {
-      return;
+    const coords = posToCoords(posX, posY);
+    if (!this.board[coords]) {
+      return false;
+    }
+    if (
+      this.board[coords]?.hasShip &&
+      !this.board[coords].isHit
+    ) {
+      this.board[coords].isHit = true;
+      this.board[coords].hasShip.hit();
+      return true;
     }
     this.board[coords].isHit = true;
     this.missedAttacks.push(coords);
-    console.log('pusing missed');
+    console.log('pushing missed');
     return false;
   }
 
   checkIfCoordsEmpty(posX, posY) {
-    let coords = posToCoords(posX, posY);
-    if (this.board[coords]) {
-      if (this.board[coords].hasShip === false) return true;
-      return false;
-    }
-    return false;
+    const coords = posToCoords(posX, posY);
+    return (this.board[coords] && !this.board[coords].hasShip)
   }
 
   getShipPosFromOrientation(posX, posY, ship, orientation) {
@@ -63,11 +61,8 @@ export default class Gameboard {
         }
       }
     }
-    // console.log(queue.length, ship.length);
-    // console.log('is queue = ship ' + (queue.length === ship.length));
     if (queue.length !== ship.length) {
       throw new Error('No room');
-      return;
     }
     while (queue.length > 0) {
       let u = queue.shift();

@@ -10,6 +10,7 @@ export default class Player {
     } else {
       this.name = 'Computer';
       this.placeStage = false;
+      this.shipCellHit = null;
     }
     this.gameboard = new Gameboard();
     this.ships = {
