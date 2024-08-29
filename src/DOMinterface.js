@@ -1,3 +1,4 @@
+import { posToCoords } from './gameboard';
 import arrow from './images/arrow.svg'
 import Player from './player';
 export { displayCells, startGame, updateScreen, startGameBot };
@@ -73,10 +74,10 @@ function startGameBot() {
 function updateScreen() {
   displayCells(player1, player2);
   // changeOrientation();
-  console.log(activePlayer.placeStage);
-  console.log(player1.gameboard.missedAttacks);
-  console.log(player2.gameboard.missedAttacks);
-  console.log(player1.gameboard.board, player2.gameboard.board);
+  // console.log(activePlayer.placeStage);
+  // console.log(player1.gameboard.missedAttacks);
+  // console.log(player2.gameboard.missedAttacks);
+  // console.log(player1.gameboard.board, player2.gameboard.board);
 }
 
 function createResetBtns() {
@@ -103,6 +104,7 @@ function checkForWinner() {
 }
 
 function playRound(posX, posY, player, enemyPlayer) {
+  console.log(!activePlayer.shipCellHit)
   if (enemyPlayer.gameboard.receiveAttack(posX, posY)) {
     if (checkForWinner()) {
       return;
@@ -110,7 +112,9 @@ function playRound(posX, posY, player, enemyPlayer) {
   } else {
     switchActivePlayer();
   }
-  if (!activePlayer.real && attackRandomPos(player) === 0) {
+  if (!activePlayer.real && activePlayer.shipCellHit && attackAroundLastShipHit(player) === -1) {
+    return;
+  } else if (!activePlayer.real && attackRandomPos(player) === 1) {
     if (checkForWinner()) {
       return;
     }
@@ -207,6 +211,7 @@ function renderShipsInCells(player, color, parent) {
 }
 
 function dropShipIntoCell(ship, player, coords) {
+  errorPanel.textContent = ''
   let theShip = ship.className.split(' ')[1];
   let [posX, posY] = coordsToPos(coords);
   try {
@@ -243,7 +248,6 @@ function changeOrientation() {
   const buttonRight = document.createElement('button');
   const buttonImg = document.createElement('img');
   const orientationText = document.createElement('div');
-  // buttonRight.style.content = `url(${arrow})`;
   orientationText.textContent = `Place direction: `;
   buttonRight.appendChild(buttonImg)
   buttonContainer.appendChild(orientationText);
@@ -268,7 +272,6 @@ function changeOrientation() {
 function createRandomShipsForComputer() {
   if (!player2.real) {
     for (const ship in player2.ships) {
-      console.log(player2.ships[ship]);
       let shipPlaced = 0;
       while (shipPlaced === 0) {
         if (checkIfRandomPosAvailable(player2.ships[ship])) {
@@ -293,6 +296,49 @@ function setPlayerNameOrDefault(playerName, defaultName) {
   return playerName
 }
 
+function attackAroundLastShipHit(enemyPlayer) {
+  const shipCellHit = activePlayer.shipCellHit
+  let coordsToHit = [[-1, 0], [0, -1], [1, 0], [0, 1]]
+  const queue = [];
+  for (let i = 0; i < coordsToHit.length; i++) {
+    const newPos = [shipCellHit[0] + coordsToHit[i][0], shipCellHit[1] + coordsToHit[i][1]]
+    if (newPos[0] < 1 ||
+        newPos[1] < 1 ||
+        newPos[0] > 10||
+        newPos[1] > 10
+    ) {
+      continue;
+    }
+    const coords = posToCoords(newPos[0], newPos[1]);
+    queue.push([newPos[0], newPos[1], coords])
+  }
+  const emptySpaces = [];
+  while(queue.length > 0) {
+    const u = queue.shift();
+    if (!enemyPlayer.gameboard.board[u[2]].isHit) {
+      emptySpaces.push([u[0], u[1], u[2]])
+    }
+  }
+  if (emptySpaces.length < 1) {
+    activePlayer.shipCellHit = null;
+    return attackRandomPos(enemyPlayer);
+  }
+  if (emptySpaces.length > 0) {
+    const u = emptySpaces[0]
+    if (!enemyPlayer.gameboard.board[u[2]].isHit && enemyPlayer.gameboard.receiveAttack(u[0], u[1])) {
+      activePlayer.shipCellHit = [u[0], u[1]];
+      if (checkForWinner()) {
+        return -1;
+      }
+      attackAroundLastShipHit(enemyPlayer);
+      return 1;
+    } else {
+      switchActivePlayer()
+      return 0;
+    }
+  }
+}
+
 function attackRandomPos(enemyPlayer) {
   const availableCoords = [];
   for (let coord in enemyPlayer.gameboard.board) {
@@ -300,19 +346,20 @@ function attackRandomPos(enemyPlayer) {
       availableCoords.push(coord);
     }
   }
-  console.log(availableCoords);
-  console.log(availableCoords.length - 1);
+  // console.log(availableCoords);
+  // console.log(availableCoords.length - 1);
   const random = Math.floor(Math.random() * (availableCoords.length - 1));
-  console.log(random);
+  // console.log(random);
   const [posX, posY] = coordsToPos(availableCoords[random]);
-  if (!enemyPlayer.gameboard.board[availableCoords[random]].isHit) {
-    if (enemyPlayer.gameboard.receiveAttack(posX, posY)) {
-      attackRandomPos(enemyPlayer);
-      return 1;
-    } else {
-      switchActivePlayer();
-      return 0;
-    }
+  if (!enemyPlayer.gameboard.board[availableCoords[random]].isHit &&
+      enemyPlayer.gameboard.receiveAttack(posX, posY)
+  ) {
+    activePlayer.shipCellHit = [posX, posY];
+    attackAroundLastShipHit(enemyPlayer);
+    return 1;
+  } else {
+    switchActivePlayer();
+    return 0;
   }
 }
 
