@@ -1,5 +1,15 @@
+:root {
+  --cellSize: 50px
+}
+
 body {
   background-color: rgb(255, 255, 255);
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
 .gameboard {
@@ -13,17 +23,28 @@ body {
   text-align: center;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  button {
+    width: max-content;
+    height: 20px;
+  }
+}
+
+.errorPanel {
+  color: red;
+  font-size: 50px;
+  font-weight: 800;
 }
 
 .titleP1, .titleP2 {
     font-weight: 600;
-    font-size: 20px;
+    font-size: var(--cellSize);
 }
 
 .playerOne, .playerTwo {
   margin-bottom: 40px;
   display: grid;
-  grid-template-columns: repeat(10, 30px);
+  grid-template-columns: repeat(10, auto);
 }
 
 .ships1, .ships2 {
@@ -33,19 +54,30 @@ body {
   height: min-content;
 }
 
+
 .buttonContainer {
+  align-items: center;
+  margin-top: 18%;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  button {
+    background-color: black;
+    height: 50px;
+    width: 50px;
+  }
+  div {
+    width: max-content;
+  }
 }
 
 .cell {
     margin: 0;
     padding: 0;
     text-align: center;
-  width: 30px;
-  height: 30px;
+  width: var(--cellSize);
+  height: var(--cellSize);
   border: 1px solid rgb(0, 0, 0);
-  font-size: 30px;
+  font-size: var(--cellSize);
   font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   font-weight: 800;
 }
